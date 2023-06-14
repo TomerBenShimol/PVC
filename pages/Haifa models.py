@@ -36,6 +36,9 @@ with dataset_statistics:
 with model:
     st.header("Haifa Model")
     model, metrics = db_service.get_model(2)
+    metrics = metrics.split("\n")
+    for i in range(len(metrics)):
+        st.text(metrics[i])
     st.text(metrics)
     text = st.text_input(
         "", placeholder="Write some text to classify...", key="text_input_2"
