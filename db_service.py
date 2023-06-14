@@ -80,8 +80,10 @@ def get_model(option):
 @st.cache_data()
 def get_dataset(option):
     if option in [1, 2]:
+        name = "SCE" if option == 1 else "Haifa"
         return pd.DataFrame.from_dict(
-            db.datasets.find_one({"dataset_number": option}), orient="index"
+            db.datasets.find_one({"dataset_number": option})[f"{name}__dataset"],
+            orient="index",
         )
     else:
         return None
