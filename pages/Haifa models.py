@@ -39,7 +39,6 @@ with model:
     metrics = metrics.split("\n")
     for i in range(len(metrics)):
         st.text(metrics[i])
-    st.text(metrics)
     text = st.text_input(
         "", placeholder="Write some text to classify...", key="text_input_2"
     )
