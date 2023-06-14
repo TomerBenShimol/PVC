@@ -7,7 +7,7 @@ from functions import *
 
 # Initialize connection.
 # Uses st.cache_resource to only run once.
-# @st.cache_resource
+@st.cache_resource
 def init_connection():
     db_uri = (
         "mongodb+srv://"
@@ -78,8 +78,8 @@ def get_model(option):
 
 
 @st.cache_data()
-def get_datasets(option):
-    if option == 1:
+def get_dataset(option):
+    if option in [1,2]:
         return db.feature_names.find_one({"dataset_number": option})
-    if option == 2:
-        return db.feature_names.find_one({"dataset_number": option})
+    else:
+        return None

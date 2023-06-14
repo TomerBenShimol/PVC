@@ -26,7 +26,7 @@ with dataset:
 
 with dataset_statistics:
     # Import data
-    dataset = read_dataset2()
+    dataset = db_service.get_dataset(2)
     st.write(dataset.head())
     st.markdown(
         f'<p class="description">This dataset contains {dataset.shape[0]} issues, of which {dataset.Classification.value_counts()[0]} are not related to privacy violations and {dataset.Classification.value_counts()[1]} are related to privacy violations. The word average is {avg_words(dataset)} and the character average is {avg_chars(dataset)}<p>',
