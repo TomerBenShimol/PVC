@@ -79,7 +79,9 @@ def get_model(option):
 
 @st.cache_data()
 def get_dataset(option):
-    if option in [1,2]:
-        return db.feature_names.find_one({"dataset_number": option})
+    if option in [1, 2]:
+        return pd.DataFrame.from_dict(
+            db.datasets.find_one({"dataset_number": option}), orient="index"
+        )
     else:
         return None
