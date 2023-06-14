@@ -1,13 +1,9 @@
 import pandas as pd
 import re
 import pickle
-import streamlit as st
 import numpy as np
 import pandas as pd
-import tensorflow as tf
-import fasttext
-import tensorflow_hub as hub
-import tensorflow_text
+import db_service
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
@@ -133,27 +129,15 @@ def load_model(id, name):
         return None, None
     try:
         if id == 1:
-            if name == "bert_classifier":
-                return (
-                    tf.keras.models.load_model(f"models/SCE/{name}"),
-                    metrics[f"dataset{id}"][name],
-                )
-            else:
-                return (
-                    pickle.load(open(f"models/SCE/{name}", "rb")),
-                    metrics[f"dataset{id}"][name.split(".")[0]],
-                )
+            return (
+                pickle.load(open(f"models/SCE/{name}", "rb")),
+                metrics[f"dataset{id}"][name.split(".")[0]],
+            )
         if id == 2:
-            if name == "bert_classifier":
-                return (
-                    tf.keras.models.load_model(f"models/Haifa/{name}"),
-                    metrics[f"dataset{id}"][name],
-                )
-            else:
-                return (
-                    pickle.load(open(f"models/Haifa/{name}", "rb")),
-                    metrics[f"dataset{id}"][name.split(".")[0]],
-                )
+            return (
+                pickle.load(open(f"models/Haifa/{name}", "rb")),
+                metrics[f"dataset{id}"][name.split(".")[0]],
+            )
     except:
         return None, None
 
@@ -213,89 +197,13 @@ def preprocess_text_for_predict(text_to_process, feature_names):
     return text
 
 
-def init_ft():
-    model_en = fasttext.load_model("English-Dict-Ft/cc.en.300.bin")
-    return model_en
-
-
-def init_BERT():
-    # Keras layers
-    bert_preprocess = hub.KerasLayer(
-        hub.load("Keras-Layers/bert_en_uncased_preprocess_3")
-    )
-    bert_encoder = hub.KerasLayer(
-        hub.load("Keras-Layers/bert_en_uncased_L-12_H-768_A-12_4")
-    )
-    return bert_preprocess, bert_encoder
-
-
-def get_text_embedding(text):
-    if type(text) != pd.Series and type(text) != str:
-        return None
-    bert_preprocess, bert_encoder = init_BERT()
-    preprocessed_text = bert_preprocess(text)
-    return bert_encoder(preprocessed_text)["pooled_output"]
-
-
-def preprocess_for_ft(vectors, df):
-    model_en = init_ft()
-    common_words = []
-    words_vecs = []
-    # Saving all the common words
-    for col in df.columns.tolist():
-        if model_en.get_word_id(col) != -1:
-            common_words.append(col)
-            words_vecs.append(model_en.get_word_vector(col))
-    # Getting word vectors for common words
-    for issue, columns in df.iterrows():
-        isuue_vector = np.zeros((300,), dtype="float32")
-        counter = 0
-        for i in range(len(df.columns.tolist())):
-            if columns.tolist()[i] > 0 and df.columns.tolist()[i] in common_words:
-                index = common_words.index(df.columns.tolist()[i])
-                isuue_vector += words_vecs[index]
-                counter += 1
-        if counter > 0:
-            vectors.append(isuue_vector / counter)
-        else:
-            vectors.append(isuue_vector)
-    return vectors
-
-
-def new_prediction(model, num, dataset, text_to_predict):
-    options = [0, 1, 2]
+def new_prediction(model, dataset, text_to_predict):
     feature_names = []
     if dataset == 1:
-        feature_names = load_feature_names(1)
+        feature_names = db_service.get_feature_names(1)
     if dataset == 2:
-        feature_names = load_feature_names(2)
+        feature_names = db_service.get_feature_names(2)
     if dataset != 1 and dataset != 2:
         return None
-
-    if num in options:
-        if num == 1:
-            if dataset == 1:
-                feature_names = load_feature_names(1, True)
-            if dataset == 2:
-                feature_names = load_feature_names(2, True)
-        pred = preprocess_text_for_predict(text_to_predict, feature_names)
-
-    if num == 3:
-        pred, _ = to_tfidf(text_to_predict, feature_names)
-        pred = preprocess_for_ft([], pred)
-
-    if num == 4:
-        pred = get_text_embedding((pd.Series(text_to_predict)))
-
-    if num == 5:
-        pred = model.predict(pd.Series(text_to_predict))[0]
-        # Result between 0.0 to 1.0
-        if pred > 0.5:
-            return 1
-        else:
-            return 0
-
-    if num > 5 or num < 0:
-        return None
-
+    pred = preprocess_text_for_predict(text_to_predict, feature_names)
     return model.predict(pred)[0]

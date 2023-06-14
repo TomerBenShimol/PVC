@@ -1,12 +1,14 @@
 import pymongo
 import gridfs
 import pickle
+import ast
+import numpy as np
 from functions import *
 
 
 # Initialize connection.
 # Uses st.cache_resource to only run once.
-@st.cache_resource
+# @st.cache_resource
 def init_connection():
     db_uri = (
         "mongodb+srv://"
@@ -43,14 +45,42 @@ def set_models():
 
 
 def set_feature_names():
-    db.feature_names.insert_one({"SCE__feature_names": load_feature_names(1).tolist()})
     db.feature_names.insert_one(
-        {"Haifa__feature_names": load_feature_names(2).tolist()}
+        {"name": "SCE__feature_names", "data": load_feature_names(1).tolist()}
+    )
+    db.feature_names.insert_one(
+        {"name": "Haifa__feature_names", "data": load_feature_names(2).tolist()}
     )
 
 
+def set_contributions(dataset):
+    dataset = pd.read_csv(dataset, encoding="ISO-8859-1")
+    db.contributions.insert_one({"dataset": dataset.to_dict("list")})
+
+
+@st.cache_data()
 def get_feature_names(option):
     if option == 1:
-        return db.feature_names.find_one("SCE__feature_names")
+        return db.feature_names.find_one({"name": "SCE__feature_names"})["data"]
+    if option == 2:
+        return db.feature_names.find_one({"name": "Haifa__feature_names"})["data"]
     else:
         return None
+
+
+@st.cache_data()
+def get_model(option):
+    if option == 1:
+        return pickle.loads(fs.find_one({"filename": "SCE__model"}).read())
+    if option == 2:
+        return pickle.loads(fs.find_one({"filename": "Haifa__model"}).read())
+    else:
+        return None
+
+
+@st.cache_data()
+def get_datasets(option):
+    if option == 1:
+        return db.feature_names.find_one({"dataset_number": option})
+    if option == 2:
+        return db.feature_names.find_one({"dataset_number": option})

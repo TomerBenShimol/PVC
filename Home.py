@@ -1,7 +1,6 @@
 import streamlit as st
 import functions
 import numpy as np
-import db_service
 
 header = st.container()
 approach = st.container()
@@ -9,9 +8,6 @@ goal = st.container()
 datasets = st.container()
 models = st.container()
 contributions = st.container()
-
-ft = np.array(db_service.get_feature_names(1))
-print(ft)
 
 with open("style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
@@ -38,25 +34,25 @@ with goal:
 with datasets:
     st.header("Datasets")
     st.text(
-        "We worked on two different data sets. One came to us without classification and we\nperformed it ourselves (SCE dataset) and the other was built by researchers\nfrom the University of Haifa and came to us already with classification\n(Haifa dataset)."
+        "We worked with two distinct sets of data. The first one was initially unclassified,\nand we took the responsibility of classifying it ourselves (referred to as the SCE\ndataset). The second dataset was created by researchers from the University of\nHaifa and was already classified when it was provided to us (known as the Haifa\ndataset)."
     )
 
 with models:
     st.header("Models")
     st.text(
-        "In the end we were able to train 9 different models for each of the datasets.\nFor each model, metrics and performance are different depending on the text\nrepresentation."
+        "In light of the current limitations imposed by the database system, we are\nexclusively uploading the finest model for each dataset."
     )
     col1, col2 = st.columns(2)
 
     with col1:
         st.markdown(
-            '<div class="button1"><a href="/SCE_models" class="link1" target="_self">SCE models</a></div>',
+            '<div class="button1"><a href="/SCE_models" class="link1" target="_self">SCE model</a></div>',
             unsafe_allow_html=True,
         )
 
     with col2:
         st.markdown(
-            '<div class="button1"><a href="/Hifa_models" class="link1" target="_self">Haifa models</a></div>',
+            '<div class="button1"><a href="/Hifa_models" class="link1" target="_self">Haifa model</a></div>',
             unsafe_allow_html=True,
         )
     st.markdown('<p class="arrow">⬆️</p>', unsafe_allow_html=True)
