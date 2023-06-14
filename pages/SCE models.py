@@ -37,7 +37,7 @@ with dataset_statistics:
 with model:
     st.header("SCE Model")
     model, metrics = db_service.get_model(1)
-    st.text(metrics)
+    st.text(" ".join(metrics.split("\n")))
     text = st.text_input(
         "", placeholder="Write some text to classify...", key="text_input_1"
     )
