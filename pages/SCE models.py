@@ -42,7 +42,6 @@ with model:
         "", placeholder="Write some text to classify...", key="text_input_1"
     )
     result = -1
-    print(result, text)
     if len(text) == 1:
         text_input_container.write(
             "There must be at least one word that is at least two characters long"

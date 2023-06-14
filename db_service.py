@@ -83,7 +83,6 @@ def get_dataset(option):
         name = "SCE" if option == 1 else "Haifa"
         return pd.DataFrame.from_dict(
             db.datasets.find_one({"dataset_number": option})[f"{name}__dataset"],
-            orient="index",
         )
     else:
         return None
