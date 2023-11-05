@@ -14,7 +14,7 @@ def init_connection():
         + st.secrets["username"]
         + ":"
         + st.secrets["password"]
-        + "@cluster0.07cutbq.mongodb.net/?retryWrites=true&w=majority"
+        + "@cluster0.taqvwiw.mongodb.net/?retryWrites=true&w=majority"
     )
     return pymongo.MongoClient(db_uri)
 
